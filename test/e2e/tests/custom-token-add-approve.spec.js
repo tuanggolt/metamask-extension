@@ -71,20 +71,17 @@ describe('Create token, approve token and approve token without gas', function (
           await driver.fill('#custom-address', tokenAddress);
           await driver.waitForSelector('#custom-symbol');
           await driver.waitForSelector('#custom-decimals');
-          await driver.waitForSelector({
+          const addButton = await driver.waitForSelector({
             text: 'Add Custom Token',
             tag: 'button',
           });
-          await driver.clickElement({
-            text: 'Add Custom Token',
-            tag: 'button',
-          });
+          addButton.click();
 
-          await driver.waitForSelector({
+          const importButton = await driver.waitForSelector({
             text: 'Import Tokens',
             tag: 'button',
           });
-          await driver.clickElement({ text: 'Import Tokens', tag: 'button' });
+          importButton.click();
 
           // renders balance for newly created token
           await driver.waitForSelector('.app-header__logo-container');

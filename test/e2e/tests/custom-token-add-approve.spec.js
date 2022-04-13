@@ -71,13 +71,13 @@ describe('Create token, approve token and approve token without gas', function (
           await driver.fill('#custom-address', tokenAddress);
           await driver.waitForSelector('#custom-symbol');
           await driver.waitForSelector('#custom-decimals');
-          const addButton = await driver.waitForSelector({
+          const addButton = await driver.findClickableElement({
             text: 'Add Custom Token',
             tag: 'button',
           });
           addButton.click();
 
-          const importButton = await driver.waitForSelector({
+          const importButton = await driver.findClickableElement({
             text: 'Import Tokens',
             tag: 'button',
           });
@@ -227,20 +227,22 @@ describe('Create token, approve token and approve token without gas', function (
           const [gasLimitInput, gasPriceInput] = await driver.findElements(
             'input[type="number"]',
           );
+          await gasPriceInput.clear();
           await gasPriceInput.fill('10');
+          await gasLimitInput.clear();
           await gasLimitInput.fill('60001');
-          await driver.waitForSelector({ text: 'Save', tag: 'button' });
+          await driver.findClickableElement({ text: 'Save', tag: 'button' });
           await driver.clickElement({ text: 'Save', tag: 'button' });
-
-          await driver.clickElement({
-            css: '.confirm-approve-content__small-blue-text',
-            text: 'View full transaction details',
-          });
 
           await driver.waitForSelector({
             css:
               '.confirm-approve-content__transaction-details-content__secondary-fee',
             text: '0.0006 ETH',
+          });
+
+          await driver.clickElement({
+            css: '.confirm-approve-content__small-blue-text',
+            text: 'View full transaction details',
           });
 
           // edits the permission

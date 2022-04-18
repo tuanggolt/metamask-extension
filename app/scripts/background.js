@@ -132,7 +132,7 @@ initialize().catch(log.error);
  */
 async function initialize() {
   const initState = await loadStateFromPersistence();
-  const initLangCode = await getFirstPreferredLangCode();
+  const initLangCode = await getFirstPreferredLangCode();  
   await setupController(initState, initLangCode);
   log.info('MetaMask initialization complete.');
 }

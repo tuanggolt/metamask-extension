@@ -10,6 +10,7 @@ class MetaRPCClient {
     this.requests = new Map();
     this.connectionStream.on('data', this.handleResponse.bind(this));
     this.connectionStream.on('end', this.close.bind(this));
+    this.responseHandled = false;
   }
 
   onNotification(handler) {
@@ -29,7 +30,20 @@ class MetaRPCClient {
     this.uncaughtErrorChannel.removeAllListeners();
   }
 
+  timeoutAfterWait(cb) {
+    setTimeout(() => {
+      if (!this.responseHandled) {
+        return cb(new Error('No response from RPC'), null);
+      }
+
+      // needed for linter to pass
+      return true;
+    }, 10000);
+  }
+
   handleResponse(data) {
+    this.responseHandled = true;
+
     const { id, result, error, method, params } = data;
     const isNotification = id === undefined && error === undefined;
     const cb = this.requests.get(id);
@@ -87,6 +101,8 @@ const metaRPCClientFactory = (connectionStream) => {
           params,
           id,
         });
+        metaRPCClient.responseHandled = false;
+        metaRPCClient.timeoutAfterWait(cb);
       };
     },
   });

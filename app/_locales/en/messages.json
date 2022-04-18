@@ -332,6 +332,9 @@
   "backToAll": {
     "message": "Back to All"
   },
+  "backgroundPortClosedError": {
+    "message": "Your connection to MetaMask was interrupted. Quit your browser and try again. If this issue persists, please log a bug report by clicking on the link below"
+  },
   "backupApprovalInfo": {
     "message": "This secret code is required to recover your wallet in case you lose your device, forget your password, have to re-install MetaMask, or want to access your wallet on another device."
   },
@@ -1199,6 +1202,9 @@
   },
   "failedToFetchTickerSymbolData": {
     "message": "Ticker symbol verification data is currently unavailable, make sure that the symbol you have entered is correct. It will impact the conversion rates that you see for this network"
+  },
+  "failedToLoadMessage": {
+    "message": "The MetaMask app failed to load: please open and close MetaMask again to restart."
   },
   "failureMessage": {
     "message": "Something went wrong, and we were unable to complete the action"

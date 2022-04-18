@@ -11,19 +11,61 @@ import Eth from 'ethjs';
 import EthQuery from 'eth-query';
 import StreamProvider from 'web3-stream-provider';
 import log from 'loglevel';
-import launchMetaMaskUi from '../../ui';
+import launchMetaMaskUi, { setupLocale } from '../../ui';
 import {
   ENVIRONMENT_TYPE_FULLSCREEN,
   ENVIRONMENT_TYPE_POPUP,
 } from '../../shared/constants/app';
+import { SUPPORT_LINK } from '../../ui/helpers/constants/common';
 import ExtensionPlatform from './platforms/extension';
 import { setupMultiplex } from './lib/stream-utils';
 import { getEnvironmentType } from './lib/util';
 import metaRPCClientFactory from './lib/metaRPCClientFactory';
+import getFirstPreferredLangCode from './lib/get-first-preferred-lang-code';
 
 start().catch(log.error);
 
 async function start() {
+  const preferredLocale = await getFirstPreferredLangCode();
+
+  const { currentLocaleMessages, enLocaleMessages } = await setupLocale(
+    preferredLocale,
+  );
+
+  function displayCriticalError(container, err, msg) {
+    const t = (key) => {
+      let message;
+      try {
+        message = currentLocaleMessages[key].message;
+      } finally {
+        if (!message) {
+          message = enLocaleMessages[key].message;
+        }
+      }
+
+      return message;
+    };
+
+    const html = `
+    <div class="critical-error-container">
+      <div class="critical-error-div">
+        ${t(msg)}
+      </div>
+      <blockquote class="critical-error-bq">
+        ${err.stack}
+      </blockquote>
+      <a href=${SUPPORT_LINK} class="critical-error-anchor" target="_blank" rel="noopener noreferrer">
+        ${t('needHelpLinkText')}
+      </a>  
+    </div>
+    `;
+
+    container.innerHTML = html;
+
+    log.error(err.stack);
+    throw err;
+  }
+
   // create platform global
   global.platform = new ExtensionPlatform();
 
@@ -32,24 +74,17 @@ async function start() {
 
   // setup stream to background
   const extensionPort = browser.runtime.connect({ name: windowType });
+
   const connectionStream = new PortStream(extensionPort);
 
   const activeTab = await queryCurrentActiveTab(windowType);
   initializeUiWithTab(activeTab);
 
-  function displayCriticalError(container, err) {
-    container.innerHTML =
-      '<div class="critical-error">The MetaMask app failed to load: please open and close MetaMask again to restart.</div>';
-    container.style.height = '80px';
-    log.error(err.stack);
-    throw err;
-  }
-
   function initializeUiWithTab(tab) {
     const container = document.getElementById('app-content');
     initializeUi(tab, container, connectionStream, (err, store) => {
       if (err) {
-        displayCriticalError(container, err);
+        displayCriticalError(container, err, 'backgroundPortClosedError');
         return;
       }
 

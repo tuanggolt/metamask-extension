@@ -176,4 +176,13 @@
       margin-left: 44px;
     }
   }
+
+  &__new-network-added {
+    border-radius: 10px;
+    text-align: center;
+
+    &__switch-to-button {
+      margin-bottom: 16px;
+    }
+  }
 }

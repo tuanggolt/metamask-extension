@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { I18nContext } from '../../../contexts/i18n';
 import ActionableMessage from '../../ui/actionable-message';
@@ -14,20 +14,72 @@ import {
 } from '../../../helpers/constants/design-system';
 import Button from '../../ui/button';
 import IconCaretLeft from '../../ui/icon/icon-caret-left';
+import { useDispatch, useSelector } from 'react-redux';
+import { getFrequentRpcListDetail, getUnapprovedConfirmations } from '../../../selectors';
+import { MESSAGE_TYPE } from '../../../../shared/constants/app';
+import { addCustomNetworks, requestUserApproval } from '../../../store/actions';
+import Popover from '../../ui/popover';
+import ConfirmationPage from '../../../pages/confirmation/confirmation';
+import { FEATURED_RPCS } from '../../../../shared/constants/network';
+import { ADD_NETWORK_ROUTE } from '../../../helpers/constants/routes';
+import { isEmpty } from 'lodash';
+import { useHistory, Redirect } from 'react-router-dom';
 
 const AddNetwork = ({
-  onBackClick,
-  onAddNetworkClick,
-  onAddNetworkManuallyClick,
-  featuredRPCS,
+  // onBackClick,
+  // onAddNetworkClick,
+  // onAddNetworkManuallyClick,
 }) => {
   const t = useContext(I18nContext);
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const frequentRpcList = useSelector(getFrequentRpcListDetail);
 
-  const nets = featuredRPCS
+  const frequentRpcListChainIds = frequentRpcList.map(net => net.chainId);
+
+  const nets = FEATURED_RPCS
     .sort((a, b) => (a.ticker > b.ticker ? 1 : -1))
-    .slice(0, 5);
+    .slice(0, FEATURED_RPCS.length);
+    
+  // const notFrequentRpcNetworks = nets.filter((net) => frequentRpcListChainIds.indexOf(net.chainId) === -1)
+  const notFrequentRpcNetworks = [];
+  // const onAddNetworkClick = async (item) => {
+  //   console.log(item);
+  //   dispatch(addCustomNetworks())
+  // }
+  const unapprovedConfirmations = useSelector(getUnapprovedConfirmations);
+  const [showPopover, setShowPopover] = useState(false);
+
+  useEffect(() => {
+    const anAddNetworkConfirmationFromMetaMaskExists = unapprovedConfirmations.find(confirmation => {
+      return confirmation.origin === 'metamask' && confirmation.type === MESSAGE_TYPE.ADD_ETHEREUM_CHAIN;
+    })
+    if (!showPopover && anAddNetworkConfirmationFromMetaMaskExists) {
+      setShowPopover(true);
+    }
+  }, [unapprovedConfirmations, showPopover]);
 
   return (
+    <>
+    {isEmpty(notFrequentRpcNetworks) ? (
+      <Box>
+        <Box>
+          <img
+            src='images/info-fox.svg'
+          />
+        </Box>
+        <Box>
+          {t('youHaveAddedAll')}{' '}
+          <Button type='link' className='add-network__link' onClick={() => <Redirect to={{ pathname: 'https://chainlist.org/' }} /> }>
+            {t('here')}{'.'}
+          </Button>
+          {' '}{t('orYouCan')}{' '}
+          <Button type="link" className='add-network__link'>
+            {t('addMoreNetworks')}{'.'}
+          </Button>
+        </Box>
+      </Box>
+    ) : (
     <Box>
       <Box
         height={BLOCK_SIZES.TWO_TWELFTHS}
@@ -39,7 +91,7 @@ const AddNetwork = ({
       >
         <IconCaretLeft
           aria-label={t('back')}
-          onClick={onBackClick}
+          // onClick={onBackClick}
           className="add-network__header__back-icon"
         />
         <Typography variant={TYPOGRAPHY.H3} color={COLORS.TEXT_DEFAULT}>
@@ -65,7 +117,7 @@ const AddNetwork = ({
         >
           {t('customNetworks')}
         </Typography>
-        {nets.map((item, index) => (
+        {notFrequentRpcNetworks.map((item, index) => (
           <Box
             key={index}
             display={DISPLAY.FLEX}
@@ -82,7 +134,10 @@ const AddNetwork = ({
             </Typography>
             <i
               className="fa fa-plus add-network__add-icon"
-              onClick={onAddNetworkClick}
+              onClick={async () => {
+                // dispatch(addCustomNetworks(item));
+                await dispatch(requestUserApproval(item))
+              }}
               title={`${t('add')} ${item.ticker}`}
             />
           </Box>
@@ -93,7 +148,12 @@ const AddNetwork = ({
         padding={[4, 4, 4, 4]}
         className="add-network__footer"
       >
-        <Button type="link" onClick={onAddNetworkManuallyClick}>
+        <Button type="link" onClick={
+          (event) => {
+            event.preventDefault();
+            global.platform.openExtensionInBrowser(ADD_NETWORK_ROUTE);
+          }
+        }>
           <Typography variant={TYPOGRAPHY.H6} color={COLORS.PRIMARY_DEFAULT}>
             {t('addANetworkManually')}
           </Typography>
@@ -119,14 +179,18 @@ const AddNetwork = ({
         />
       </Box>
     </Box>
+    )}
+    {showPopover && <Popover>
+      <ConfirmationPage />
+    </Popover>}
+    </>
   );
 };
 
 AddNetwork.propTypes = {
-  onBackClick: PropTypes.func,
-  onAddNetworkClick: PropTypes.func,
-  onAddNetworkManuallyClick: PropTypes.func,
-  featuredRPCS: PropTypes.array,
+  // onBackClick: PropTypes.func,
+  // onAddNetworkClick: PropTypes.func,
+  // onAddNetworkManuallyClick: PropTypes.func,
 };
 
 export default AddNetwork;

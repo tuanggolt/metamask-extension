@@ -34,6 +34,7 @@ import {
 import { parseSmartTransactionsError } from '../pages/swaps/swaps.util';
 import { isEqualCaseInsensitive } from '../../shared/modules/string-utils';
 import * as actionConstants from './actionConstants';
+import { setNewCustomNetworkAdded } from '../ducks/app/app';
 
 let background = null;
 let promisifiedBackground = null;
@@ -3503,5 +3504,29 @@ export function cancelQRHardwareSignRequest() {
   return async (dispatch) => {
     dispatch(hideLoadingIndication());
     await promisifiedBackground.cancelQRHardwareSignRequest();
+  };
+}
+
+export function addCustomNetworks(customRpc) {
+  console.log(customRpc);
+  return async (dispatch) => {
+    try {
+      dispatch(setNewCustomNetworkAdded(customRpc))
+      await promisifiedBackground.addCustomNetworks(customRpc);
+    } catch (error) {
+      log.error(error);
+      dispatch(displayWarning('Had a problem changing networks!'));
+    }
+  };
+}
+
+export function requestUserApproval(customRpc) {
+  return async (dispatch) => {
+    try {
+      await promisifiedBackground.requestUserApprovalA(customRpc);
+    } catch (error) {
+      log.error(error);
+      dispatch(displayWarning('Had a problem changing networks!'));
+    }
   };
 }

@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { sortBy } from 'lodash';
+import { isSmartContractAddress } from '../../../helpers/utils/transactions.util';
 import Button from '../../ui/button';
 import RecipientGroup from './recipient-group/recipient-group.component';
 
@@ -25,7 +26,9 @@ export default class ContactList extends PureComponent {
   renderRecents() {
     const { t } = this.context;
     const { isShowingAllRecent } = this.state;
-    const nonContacts = this.props.searchForRecents();
+    const nonContacts = this.props
+      .searchForRecents()
+      .filter(({ address }) => isSmartContractAddress(address));
 
     const showLoadMore = !isShowingAllRecent && nonContacts.length > 2;
 
@@ -61,7 +64,9 @@ export default class ContactList extends PureComponent {
         };
       }, {});
 
-    const letters = Object.keys(unsortedContactsByLetter).sort();
+    const letters = Object.keys(unsortedContactsByLetter)
+      .filter(({ address }) => isSmartContractAddress(address))
+      .sort();
 
     const sortedContactGroups = letters.map((letter) => {
       return [

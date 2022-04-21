@@ -16,20 +16,17 @@ import Button from '../../ui/button';
 import IconCaretLeft from '../../ui/icon/icon-caret-left';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFrequentRpcListDetail, getUnapprovedConfirmations } from '../../../selectors';
-import { MESSAGE_TYPE } from '../../../../shared/constants/app';
-import { addCustomNetworks, requestUserApproval } from '../../../store/actions';
+import { ENVIRONMENT_TYPE_POPUP, MESSAGE_TYPE } from '../../../../shared/constants/app';
+import { requestUserApproval } from '../../../store/actions';
 import Popover from '../../ui/popover';
 import ConfirmationPage from '../../../pages/confirmation/confirmation';
 import { FEATURED_RPCS } from '../../../../shared/constants/network';
 import { ADD_NETWORK_ROUTE } from '../../../helpers/constants/routes';
 import { isEmpty } from 'lodash';
 import { useHistory, Redirect } from 'react-router-dom';
+import { getEnvironmentType } from '../../../../app/scripts/lib/util';
 
-const AddNetwork = ({
-  // onBackClick,
-  // onAddNetworkClick,
-  // onAddNetworkManuallyClick,
-}) => {
+const AddNetwork = () => {
   const t = useContext(I18nContext);
   const dispatch = useDispatch();
   const history = useHistory();
@@ -41,12 +38,8 @@ const AddNetwork = ({
     .sort((a, b) => (a.ticker > b.ticker ? 1 : -1))
     .slice(0, FEATURED_RPCS.length);
     
-  // const notFrequentRpcNetworks = nets.filter((net) => frequentRpcListChainIds.indexOf(net.chainId) === -1)
-  const notFrequentRpcNetworks = [];
-  // const onAddNetworkClick = async (item) => {
-  //   console.log(item);
-  //   dispatch(addCustomNetworks())
-  // }
+  const notFrequentRpcNetworks = nets.filter((net) => frequentRpcListChainIds.indexOf(net.chainId) === -1)
+
   const unapprovedConfirmations = useSelector(getUnapprovedConfirmations);
   const [showPopover, setShowPopover] = useState(false);
 
@@ -81,23 +74,6 @@ const AddNetwork = ({
       </Box>
     ) : (
     <Box>
-      <Box
-        height={BLOCK_SIZES.TWO_TWELFTHS}
-        padding={[4, 0, 4, 0]}
-        display={DISPLAY.FLEX}
-        alignItems={ALIGN_ITEMS.CENTER}
-        flexDirection={FLEX_DIRECTION.ROW}
-        className="add-network__header"
-      >
-        <IconCaretLeft
-          aria-label={t('back')}
-          // onClick={onBackClick}
-          className="add-network__header__back-icon"
-        />
-        <Typography variant={TYPOGRAPHY.H3} color={COLORS.TEXT_DEFAULT}>
-          {t('addNetwork')}
-        </Typography>
-      </Box>
       <Box
         height={BLOCK_SIZES.FOUR_FIFTHS}
         width={BLOCK_SIZES.TEN_TWELFTHS}
@@ -135,7 +111,6 @@ const AddNetwork = ({
             <i
               className="fa fa-plus add-network__add-icon"
               onClick={async () => {
-                // dispatch(addCustomNetworks(item));
                 await dispatch(requestUserApproval(item))
               }}
               title={`${t('add')} ${item.ticker}`}
@@ -151,7 +126,7 @@ const AddNetwork = ({
         <Button type="link" onClick={
           (event) => {
             event.preventDefault();
-            global.platform.openExtensionInBrowser(ADD_NETWORK_ROUTE);
+            getEnvironmentType() === ENVIRONMENT_TYPE_POPUP ? global.platform.openExtensionInBrowser(ADD_NETWORK_ROUTE) : history.push(ADD_NETWORK_ROUTE);
           }
         }>
           <Typography variant={TYPOGRAPHY.H6} color={COLORS.PRIMARY_DEFAULT}>
@@ -185,12 +160,6 @@ const AddNetwork = ({
     </Popover>}
     </>
   );
-};
-
-AddNetwork.propTypes = {
-  // onBackClick: PropTypes.func,
-  // onAddNetworkClick: PropTypes.func,
-  // onAddNetworkManuallyClick: PropTypes.func,
 };
 
 export default AddNetwork;

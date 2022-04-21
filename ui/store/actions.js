@@ -3507,12 +3507,11 @@ export function cancelQRHardwareSignRequest() {
   };
 }
 
-export function addCustomNetworks(customRpc) {
-  console.log(customRpc);
+export function addCustomNetwork(customRpc) {
   return async (dispatch) => {
     try {
       dispatch(setNewCustomNetworkAdded(customRpc))
-      await promisifiedBackground.addCustomNetworks(customRpc);
+      await promisifiedBackground.addCustomNetwork(customRpc);
     } catch (error) {
       log.error(error);
       dispatch(displayWarning('Had a problem changing networks!'));
@@ -3523,7 +3522,7 @@ export function addCustomNetworks(customRpc) {
 export function requestUserApproval(customRpc) {
   return async (dispatch) => {
     try {
-      await promisifiedBackground.requestUserApprovalA(customRpc);
+      await promisifiedBackground.requestUserApproval(customRpc);
     } catch (error) {
       log.error(error);
       dispatch(displayWarning('Had a problem changing networks!'));

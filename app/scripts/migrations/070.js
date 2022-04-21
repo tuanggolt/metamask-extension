@@ -18,16 +18,20 @@ export default {
 };
 
 function transformState(state) {
-  const currentMetaMaskState = state.metamask;
-  const currentAdvancedGasFee = currentMetaMaskState.advancedGasFee;
-  const currentChainId = currentMetaMaskState.provider.chainId;
+  const PreferencesController = state?.PreferencesController || {};
+  const currentAdvancedGasFee = PreferencesController.advancedGasFee;
+  const provider = state.NetworkController?.provider || {};
+  const currentChainId = provider.chainId;
 
-  const newMetaMaskState = {
-    ...currentMetaMaskState,
-    advancedGasFee: {
-      [currentChainId]: currentAdvancedGasFee,
+  const newState = {
+    ...state,
+    PreferencesController: {
+      ...PreferencesController,
+      advancedGasFee: {
+        [currentChainId]: currentAdvancedGasFee,
+      },
     },
   };
 
-  return newMetaMaskState;
+  return newState;
 }

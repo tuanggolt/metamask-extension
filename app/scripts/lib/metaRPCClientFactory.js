@@ -13,6 +13,20 @@ class MetaRPCClient {
     this.responseHandled = false;
   }
 
+  send(id, payload, cb) {
+    this.responseHandled = false;
+    this.requests.set(id, cb);
+    this.connectionStream.write(payload);
+    setTimeout(() => {
+      if (!this.responseHandled) {
+        return cb(new Error('No response from RPC'), null);
+      }
+
+      // needed for linter to pass
+      return true;
+    }, 10000);
+  }
+
   onNotification(handler) {
     this.notificationChannel.addListener('notification', (data) => {
       handler(data);
@@ -28,17 +42,6 @@ class MetaRPCClient {
   close() {
     this.notificationChannel.removeAllListeners();
     this.uncaughtErrorChannel.removeAllListeners();
-  }
-
-  timeoutAfterWait(cb) {
-    setTimeout(() => {
-      if (!this.responseHandled) {
-        return cb(new Error('No response from RPC'), null);
-      }
-
-      // needed for linter to pass
-      return true;
-    }, 10000);
   }
 
   handleResponse(data) {
@@ -93,16 +96,13 @@ const metaRPCClientFactory = (connectionStream) => {
         const cb = p[p.length - 1];
         const params = p.slice(0, -1);
         const id = createRandomId();
-
-        object.requests.set(id, cb);
-        object.connectionStream.write({
+        const payload = {
           jsonrpc: '2.0',
           method: property,
           params,
           id,
-        });
-        metaRPCClient.responseHandled = false;
-        metaRPCClient.timeoutAfterWait(cb);
+        };
+        object.send(id, payload, cb);
       };
     },
   });

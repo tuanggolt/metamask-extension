@@ -332,9 +332,6 @@
   "backToAll": {
     "message": "Back to All"
   },
-  "backgroundPortClosedError": {
-    "message": "Your connection to MetaMask was interrupted. Quit your browser and try again. If this issue persists, please log a bug report by clicking on the link below"
-  },
   "backupApprovalInfo": {
     "message": "This secret code is required to recover your wallet in case you lose your device, forget your password, have to re-install MetaMask, or want to access your wallet on another device."
   },
@@ -2796,6 +2793,9 @@
   "sendAmount": {
     "message": "Send Amount"
   },
+  "sendBugReport": {
+    "message": "Send us a bug report."
+  },
   "sendSpecifiedTokens": {
     "message": "Send $1",
     "description": "Symbol of the specified token"
@@ -3068,6 +3068,9 @@
   "step2LedgerWalletMsg": {
     "message": "Connect your wallet directly to your computer.  Unlock your Ledger and open the Ethereum app. For more on using your hardware wallet device, $1.",
     "description": "$1 represents the `hardwareWalletSupportLinkConversion` localization key"
+  },
+  "stillGettingMessage": {
+    "message": "Still getting this message?"
   },
   "storePhrase": {
     "message": "Store this phrase in a password manager like 1Password."
@@ -3756,6 +3759,9 @@
   "troubleConnectingToWallet": {
     "message": "We had trouble connecting to your $1, try reviewing $2 and try again.",
     "description": "$1 is the wallet device name; $2 is a link to wallet connection guide"
+  },
+  "troubleStarting": {
+    "message": "MetaMask had trouble starting. This error could be intermittent, so try restarting the extension."
   },
   "troubleTokenBalances": {
     "message": "We had trouble loading your token balances. You can view them ",

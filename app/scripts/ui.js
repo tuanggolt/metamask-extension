@@ -32,7 +32,7 @@ async function start() {
     preferredLocale,
   );
 
-  function displayCriticalError(container, err, msg) {
+  function displayCriticalError(container, err) {
     const t = (key) => {
       let message;
       try {
@@ -49,14 +49,21 @@ async function start() {
     const html = `
     <div class="critical-error-container">
       <div class="critical-error-div">
-        ${t(msg)}
+        ${t('troubleStarting')}        
       </div>
       <blockquote class="critical-error-bq">
         ${err.stack}
       </blockquote>
-      <a href=${SUPPORT_LINK} class="critical-error-anchor" target="_blank" rel="noopener noreferrer">
-        ${t('needHelpLinkText')}
-      </a>  
+      <p class="critical-error-paragraph">    
+        ${t('stillGettingMessage')}
+        <a           
+          href=${SUPPORT_LINK} 
+          class="critical-error-anchor" 
+          target="_blank" 
+          rel="noopener noreferrer">
+            ${t('sendBugReport')}
+          </a>  
+      </p>
     </div>
     `;
 
@@ -84,7 +91,7 @@ async function start() {
     const container = document.getElementById('app-content');
     initializeUi(tab, container, connectionStream, (err, store) => {
       if (err) {
-        displayCriticalError(container, err, 'backgroundPortClosedError');
+        displayCriticalError(container, err);
         return;
       }
 
